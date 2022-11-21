@@ -1,7 +1,8 @@
 import { window, workspace } from "vscode";
 import { isTestFile } from "../helpers/validations";
+import stateManager from "../helpers/lastCommandManager";
 
-export default function handler() {
+export default async function handler() {
   const activeFile = window.activeTextEditor;
   if (!activeFile) {
     return;
@@ -12,12 +13,16 @@ export default function handler() {
 
   const config = workspace.getConfiguration("vscode-elixir-test");
 
+  const terminal = window.activeTerminal || window.createTerminal();
   if (isATestFile === true) {
-    const terminal = window.activeTerminal || window.createTerminal();
     let matched = openedFilename.match(/.*\/(test\/.*)$/);
-    matched && terminal.sendText(`TestIex.test("${matched[1]}")`);
-    if (config.focusOnTerminalAfterTest) terminal.show();
+    if (matched) {
+      let command = `TestIex.test("${matched[1]}")`;
+      matched && terminal.sendText(command);
+      if (config.focusOnTerminalAfterTest) terminal.show();
+    }
   } else {
+    console.log("terminal state", terminal.state);
     window.showInformationMessage("The current file is not a test file.");
   }
 }
