@@ -1,20 +1,21 @@
-import * as vscode from "vscode";
+import { ExtensionContext } from "vscode";
 
-type State = { lastCommand: string };
+type State = { lastCommand: string | undefined };
 
-export default function stateManager(context: vscode.ExtensionContext) {
-  return {
-    read,
-    write,
-  };
+export default class StateManager {
+  context: ExtensionContext;
 
-  function read() {
+  constructor(context: ExtensionContext) {
+    this.context = context;
+  }
+
+  read(): State {
     return {
-      lastCommand: context.globalState.get("lastCommand"),
+      lastCommand: this.context.globalState.get("lastCommand"),
     };
   }
 
-  async function write(newState: State) {
-    await context.globalState.update("lastCommand", newState.lastCommand);
+  async write(newState: State) {
+    await this.context.globalState.update("lastCommand", newState.lastCommand);
   }
 }

@@ -1,28 +1,36 @@
-import { window, workspace } from "vscode";
+import { window, ExtensionContext } from "vscode";
 import { isTestFile } from "../helpers/validations";
-import stateManager from "../helpers/lastCommandManager";
+import StateManager from "../helpers/lastCommandManager";
+import iexConfig from "../helpers/config";
 
-export default async function handler() {
+export default async function handler(context: ExtensionContext) {
   const activeFile = window.activeTextEditor;
   if (!activeFile) {
     return;
   }
-
-  const openedFilename: string = activeFile.document.fileName;
-  const isATestFile: boolean = isTestFile(openedFilename);
-
-  const config = workspace.getConfiguration("vscode-elixir-test");
-
+  const config = iexConfig();
   const terminal = window.activeTerminal || window.createTerminal();
-  if (isATestFile === true) {
+
+  const state = new StateManager(context); // cache the command
+  const openedFilename: string = activeFile.document.fileName;
+
+  if (isTestFile(openedFilename)) {
     let matched = openedFilename.match(/.*\/(test\/.*)$/);
     if (matched) {
       let command = `TestIex.test("${matched[1]}")`;
-      matched && terminal.sendText(command);
-      if (config.focusOnTerminalAfterTest) terminal.show();
+      if (matched) {
+        terminal.sendText(command);
+        await state.write({ lastCommand: command });
+      }
+      config.focusOnTerminalAfterTest && terminal.show();
     }
   } else {
-    console.log("terminal state", terminal.state);
-    window.showInformationMessage("The current file is not a test file.");
+    const { lastCommand } = state.read();
+
+    if (lastCommand) {
+      terminal.sendText(lastCommand);
+    } else {
+      window.showInformationMessage("The current file is not a test file.");
+    }
   }
 }

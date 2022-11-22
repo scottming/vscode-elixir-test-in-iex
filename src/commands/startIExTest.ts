@@ -5,5 +5,5 @@ export default function handler() {
   const terminal = window.activeTerminal || window.createTerminal();
   let text = `MIX_ENV=test iex --no-pry -S mix run -e 'Code.eval_file("~/.test_iex/lib/test_iex.ex");TestIex.start()'`;
   terminal.sendText(text);
-  if (config.focusOnTerminalAfterTest) terminal.show();
+  config.focusOnTerminalAfterTest && terminal.show();
 }
