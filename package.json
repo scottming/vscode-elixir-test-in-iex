@@ -1,5 +1,10 @@
 {
   "name": "elixir-test-in-iex",
+  "publisher": "ScottMing",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scottming/vscode-elixir-test-in-iex"
+  },
   "displayName": "Elixir Test in IEx",
   "description": "Run test in IEx shell",
   "version": "0.0.1",
