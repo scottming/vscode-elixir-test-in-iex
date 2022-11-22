@@ -31,6 +31,17 @@
       }
     ]
   },
+  "configuration": {
+    "title": "vscode-elixir-test-in-iex",
+    "type": "object",
+    "properties": {
+      "vscode-elixir-test-in-iex.focusOnTerminalAfterTest": {
+        "type": "boolean",
+        "default": true,
+        "description": "Get focus on terminal panel after test"
+      }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
     "compile": "tsc -p ./",
