@@ -1,14 +1,14 @@
 import { window, ExtensionContext } from "vscode";
 import { isTestFile } from "../helpers/validations";
 import StateManager from "../helpers/lastCommandManager";
-import iexConfig from "../helpers/config";
+import getConfig from "../helpers/config";
 
 export default async function handler(context: ExtensionContext) {
   const activeFile = window.activeTextEditor;
   if (!activeFile) {
     return;
   }
-  const config = iexConfig();
+  const config = getConfig();
   const terminal = window.activeTerminal || window.createTerminal();
 
   const state = new StateManager(context); // cache the command

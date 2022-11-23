@@ -1,38 +1,53 @@
-import { window, workspace } from "vscode";
-import { isUmbrella } from "../helpers/validations";
+import { window, workspace, Terminal } from "vscode";
+import getConfig from "../helpers/config";
+import { isUmbrella, targetWorkingDir } from "../helpers/validations";
 
-export default function handler() {
-  let defaultStartText = `MIX_ENV=test iex --no-pry -S mix run -e 'Code.eval_file("~/.test_iex/lib/test_iex.ex");TestIex.start()'`;
-  const activeFileName = window.activeTextEditor?.document.fileName;
-  if (!activeFileName) {
-    return startIEx(defaultStartText);
-  }
-
-  if (isUmbrella(activeFileName)) {
-    const cwd: string = workspace.workspaceFolders
-      ? workspace.workspaceFolders.map((f) => f.uri.fsPath)[0]
-      : process.cwd();
-    let targetCWD = targetWorkingDir(activeFileName);
-    return cwd !== targetCWD
-      ? startIEx(`cd ${targetCWD} && ` + defaultStartText)
-      : startIEx(defaultStartText);
+export default function handler(terminal: Terminal | null = null) {
+  let activateTerminal: Terminal;
+  if (!terminal) {
+    activateTerminal = window.activeTerminal || window.createTerminal();
   } else {
-    return startIEx(defaultStartText);
+    activateTerminal = terminal;
+  }
+
+  const defaultStartText = `MIX_ENV=test iex --no-pry -S mix run -e 'Code.eval_file("~/.test_iex/lib/test_iex.ex");TestIex.start()'`;
+  const openedFileName = window.activeTextEditor?.document.fileName;
+  if (!openedFileName) {
+    return startIExWith(activateTerminal, defaultStartText);
+  }
+
+  let startText: string;
+  if (isUmbrella(openedFileName)) {
+    startText = populateStartText(defaultStartText, openedFileName, getCWD);
+  } else {
+    startText = defaultStartText;
+  }
+  return startIExWith(activateTerminal, startText);
+}
+
+function startIExWith(terminal: Terminal, text: string) {
+  terminal.sendText(text);
+  getConfig() && terminal.show();
+}
+
+function populateStartText(
+  defaultStartText: string,
+  openedFileName: string,
+  cwdFun: () => string
+): string {
+  if (isUmbrella(openedFileName)) {
+    let targetCWD = targetWorkingDir(openedFileName);
+    let cwd = cwdFun();
+    return cwd !== targetCWD
+      ? `cd ${targetCWD} && ` + defaultStartText
+      : defaultStartText;
+  } else {
+    return defaultStartText;
   }
 }
 
-function startIEx(text: string) {
-  const terminal = window.activeTerminal || window.createTerminal();
-  terminal.sendText(text);
-  const config = workspace.getConfiguration("vscode-elixir-test");
-  config.focusOnTerminalAfterTest && terminal.show();
-}
-
-function targetWorkingDir(fileName: string): string | null {
-  let r = /(.*)\/(apps\/\w+).*$/;
-  let targetWorkingDirMathced = fileName.match(r);
-  return (
-    targetWorkingDirMathced &&
-    targetWorkingDirMathced[1] + "/" + targetWorkingDirMathced[2]
-  );
+function getCWD(): string {
+  return workspace.workspaceFolders
+    ? workspace.workspaceFolders.map((f) => f.uri.fsPath)[0]
+    : process.cwd();
 }

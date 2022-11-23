@@ -13,3 +13,12 @@ export function isTestFolder(openedFilename: string) {
 export function isUmbrella(openedFilename: string) {
   return isFolder(openedFilename, "apps");
 }
+
+export function targetWorkingDir(openedFilename: string): string | null {
+  let r = /(.*)\/(apps\/\w+).*$/;
+  let targetWorkingDirMathced = openedFilename.match(r);
+  return (
+    targetWorkingDirMathced &&
+    targetWorkingDirMathced[1] + "/" + targetWorkingDirMathced[2]
+  );
+}

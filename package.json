@@ -17,7 +17,8 @@
   "activationEvents": [
     "onCommand:elixir-test-in-iex.runTestFile",
     "onCommand:elixir-test-in-iex.runTestAtCursor",
-    "onCommand:elixir-test-in-iex.startIExTest"
+    "onCommand:elixir-test-in-iex.startIExTest",
+    "onCommand:elixir-test-in-iex.restartIEx"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -33,6 +34,10 @@
       {
         "command": "elixir-test-in-iex.startIExTest",
         "title": "TestInIEx: Start Test"
+      },
+      {
+        "command": "elixir-test-in-iex.restartIEx",
+        "title": "TestInIEx: Restart IEx Shell"
       }
     ]
   },

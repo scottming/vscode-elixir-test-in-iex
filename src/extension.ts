@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 import { ExtensionContext } from "vscode";
 import startIExTest from "./commands/startIExTest";
+import restartIEx from "./commands/restartIEx";
 import runTestFile from "./commands/runTestFile";
 import runTestAtCursor from "./commands/runTestAtCursor";
 
@@ -18,13 +19,10 @@ export async function activate(context: ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let startDisposable = vscode.commands.registerCommand(
-    "elixir-test-in-iex.startIExTest",
-    startIExTest
-  );
-  context.subscriptions.push(startDisposable);
 
-  let asyncCommands: [string, () => void][] = [
+  let commands: [string, () => void][] = [
+    ["elixir-test-in-iex.startIExTest", startIExTest],
+    ["elixir-test-in-iex.restartIEx", restartIEx],
     [
       "elixir-test-in-iex.runTestAtCursor",
       async () => await runTestAtCursor(context),
@@ -32,8 +30,9 @@ export async function activate(context: ExtensionContext) {
     ["elixir-test-in-iex.runTestFile", async () => await runTestFile(context)],
   ];
 
-  for (const [name, command] of asyncCommands) {
+  for (const [name, command] of commands) {
     let disposable = vscode.commands.registerCommand(name, command);
+    context.subscriptions.push(disposable);
   }
 }
 
