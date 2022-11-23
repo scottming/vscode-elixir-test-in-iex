@@ -1,6 +1,6 @@
-import { window, workspace, Terminal } from "vscode";
-import getConfig from "../helpers/config";
-import { isUmbrella, targetWorkingDir } from "../helpers/validations";
+import { window, workspace, Terminal } from 'vscode';
+import getConfig from '../helpers/config';
+import { isUmbrella, targetWorkingDir } from '../helpers/validations';
 
 export default function handler(terminal: Terminal | null = null) {
   let activateTerminal: Terminal;
@@ -15,13 +15,7 @@ export default function handler(terminal: Terminal | null = null) {
   if (!openedFileName) {
     return startIExWith(activateTerminal, defaultStartText);
   }
-
-  let startText: string;
-  if (isUmbrella(openedFileName)) {
-    startText = populateStartText(defaultStartText, openedFileName, getCWD);
-  } else {
-    startText = defaultStartText;
-  }
+  const startText: string = populateStartText(defaultStartText, openedFileName, getCWD);
   return startIExWith(activateTerminal, startText);
 }
 
@@ -38,9 +32,7 @@ function populateStartText(
   if (isUmbrella(openedFileName)) {
     let targetCWD = targetWorkingDir(openedFileName);
     let cwd = cwdFun();
-    return cwd !== targetCWD
-      ? `cd ${targetCWD} && ` + defaultStartText
-      : defaultStartText;
+    return cwd !== targetCWD ? `cd ${targetCWD} && ` + defaultStartText : defaultStartText;
   } else {
     return defaultStartText;
   }
