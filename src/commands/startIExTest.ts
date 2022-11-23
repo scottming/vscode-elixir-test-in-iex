@@ -15,6 +15,7 @@ export default function handler(terminal: Terminal | null = null) {
   if (!openedFileName) {
     return startIExWith(activateTerminal, defaultStartText);
   }
+
   const startText: string = populateStartText(defaultStartText, openedFileName, getCWD);
   return startIExWith(activateTerminal, startText);
 }
