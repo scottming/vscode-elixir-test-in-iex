@@ -25,7 +25,7 @@ function startIExWith(terminal: Terminal, text: string) {
   getConfig() && terminal.show();
 }
 
-function populateStartText(
+export function populateStartText(
   defaultStartText: string,
   openedFileName: string,
   cwdFun: () => string
