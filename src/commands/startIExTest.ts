@@ -31,8 +31,8 @@ export function populateStartText(
   cwdFun: () => string
 ): string {
   if (isUmbrella(openedFileName)) {
-    let targetCWD = targetWorkingDir(openedFileName);
-    let cwd = cwdFun();
+    const targetCWD = targetWorkingDir(openedFileName);
+    const cwd = cwdFun();
     return cwd !== targetCWD ? `cd ${targetCWD} && ` + defaultStartText : defaultStartText;
   } else {
     return defaultStartText;
