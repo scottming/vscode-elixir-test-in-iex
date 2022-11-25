@@ -1,7 +1,7 @@
-import { window, ExtensionContext } from "vscode";
-import { isTestFile } from "../helpers/validations";
-import StateManager from "../helpers/lastCommandManager";
-import getConfig from "../helpers/config";
+import { window, ExtensionContext } from 'vscode';
+import { isTestFile } from '../helpers/validations';
+import StateManager, { sendLastCommandWith } from '../helpers/stateManager';
+import getConfig from '../helpers/config';
 
 export default async function handler(context: ExtensionContext) {
   const activeFile = window.activeTextEditor;
@@ -20,16 +20,10 @@ export default async function handler(context: ExtensionContext) {
       const cursorLine = activeFile.selection.active.line + 1;
       const command = `TestIex.test("${matched[1]}", ${cursorLine})`;
       terminal.sendText(command);
-      await state.write({ lastCommand: command });
+      await state.setLastCommand(command);
     }
     config.focusOnTerminalAfterTest && terminal.show();
   } else {
-    const { lastCommand } = state.read();
-
-    if (lastCommand) {
-      terminal.sendText(lastCommand);
-    } else {
-      window.showInformationMessage("The current file is not a test file.");
-    }
+    sendLastCommandWith(context, terminal);
   }
 }
