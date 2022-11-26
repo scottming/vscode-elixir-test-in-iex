@@ -1,5 +1,5 @@
 import { window, workspace, Terminal } from 'vscode';
-import getConfig from '../helpers/config';
+import mayShowTerminal from '../helpers/config';
 import { isUmbrella, targetWorkingDir } from '../helpers/validations';
 
 export default function handler(terminal: Terminal | null = null) {
@@ -10,7 +10,9 @@ export default function handler(terminal: Terminal | null = null) {
     activateTerminal = terminal;
   }
 
-  const defaultStartText = `MIX_ENV=test iex --no-pry -S mix run -e 'Code.eval_file("~/.test_iex/lib/test_iex.ex");TestIex.start()'`;
+  const defaultStartText =
+    'MIX_ENV=test iex --no-pry -S mix run -e ' +
+    `'Code.eval_file("~/.test_iex/lib/test_iex.ex");TestIex.start()'`;
   const openedFileName = window.activeTextEditor?.document.fileName;
   if (!openedFileName) {
     return startIExWith(activateTerminal, defaultStartText);
@@ -22,7 +24,7 @@ export default function handler(terminal: Terminal | null = null) {
 
 function startIExWith(terminal: Terminal, text: string) {
   terminal.sendText(text);
-  getConfig() && terminal.show();
+  mayShowTerminal(terminal);
 }
 
 export function populateStartText(

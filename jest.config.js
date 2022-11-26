@@ -4,7 +4,8 @@ const config = {
   transform: {
     '^.+\\.ts?$': 'ts-jest'
   },
-  transformIgnorePatterns: ['<rootDir>/node_modules/']
+  transformIgnorePatterns: ['<rootDir>/node_modules/'],
+  modulePathIgnorePatterns: ['out/']
 };
 
 module.exports = config;
