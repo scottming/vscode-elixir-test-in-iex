@@ -14,7 +14,14 @@ export default async function handler(context: ExtensionContext) {
   if (!openedFilename) {
     return;
   }
+  await startIExAndRunTest(context, openedFilename);
+}
 
+export async function startIExAndRunTest(
+  context: ExtensionContext,
+  openedFilename: string,
+  line?: number
+) {
   const stateManager = new StateManager(context);
   const startIExText = populateStartText(openedFilename);
   const needsToChange = startCommandNeedsToChange(startIExText, stateManager);
@@ -26,17 +33,19 @@ export default async function handler(context: ExtensionContext) {
     if (!terminal) {
       activeTerminal = window.createTerminal();
       await startIExWith(startIExText, activeTerminal, stateManager);
-      await runTest(openedFilename, activeTerminal, stateManager);
+      await runTest(openedFilename, activeTerminal, stateManager, line);
+      return;
     }
 
     if (needsToChange && terminal) {
       terminal.dispose();
       activeTerminal = window.createTerminal();
       await startIExWith(startIExText, activeTerminal, stateManager);
-      await runTest(openedFilename, activeTerminal, stateManager);
+      await runTest(openedFilename, activeTerminal, stateManager, line);
+      return;
     }
   } else {
-    await runTest(openedFilename, terminal, stateManager);
+    await runTest(openedFilename, terminal, stateManager, line);
   }
 }
 
@@ -49,7 +58,7 @@ export async function runTest(
   openedFilename: string,
   terminal: Terminal,
   stateManager: StateManager,
-  line: number | null = null
+  line?: number
 ) {
   if (!isTestFile(openedFilename)) {
     sendLastCommandWith(terminal, stateManager);

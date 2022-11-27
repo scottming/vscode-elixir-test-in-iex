@@ -5,5 +5,9 @@ export function config() {
 }
 
 export default function showTerminal(terminal: Terminal) {
-  config().get('focusOnTerminalAfterTest', true) && terminal.show();
+  if (config().get('focusOnTerminalAfterTest')) {
+    terminal.show();
+  } else {
+    terminal.show(true);
+  }
 }

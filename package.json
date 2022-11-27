@@ -17,8 +17,7 @@
   "activationEvents": [
     "onCommand:elixir-test-in-iex.runTestFile",
     "onCommand:elixir-test-in-iex.runTestAtCursor",
-    "onCommand:elixir-test-in-iex.startIExTest",
-    "onCommand:elixir-test-in-iex.restartIEx"
+    "onCommand:elixir-test-in-iex.startIExTest"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -34,10 +33,6 @@
       {
         "command": "elixir-test-in-iex.startIExTest",
         "title": "TestInIEx: Start Test"
-      },
-      {
-        "command": "elixir-test-in-iex.restartIEx",
-        "title": "TestInIEx: Restart IEx Shell"
       }
     ]
   },
@@ -47,7 +42,7 @@
     "properties": {
       "vscode-elixir-test-in-iex.focusOnTerminalAfterTest": {
         "type": "boolean",
-        "default": true,
+        "default": false,
         "description": "Get focus on terminal panel after test"
       }
     }

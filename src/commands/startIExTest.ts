@@ -19,5 +19,5 @@ export default function handler(context: ExtensionContext) {
 export async function startIExWith(text: string, terminal: Terminal, stateManager: StateManager) {
   terminal.sendText(text);
   await stateManager.setLastStartCommand(text);
-  // mayShowTerminal(terminal);
+  showTerminal(terminal);
 }
