@@ -23,7 +23,7 @@ Similar behavior as `Run test File`, but at the cursor.
 ![Nov-27-2022 15-21-45](https://user-images.githubusercontent.com/12830256/204124016-b48dab94-1a89-4863-b296-a7686cbc8d8c.gif)
 
 
-## Hiden features
+## Hidden features
 
 ### TestInIEx: Start Test 
 
