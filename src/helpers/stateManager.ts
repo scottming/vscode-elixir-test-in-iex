@@ -1,7 +1,5 @@
 import { Terminal } from 'vscode';
 import { ExtensionContext, window } from 'vscode';
-import * as O from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
 
 type State = {
   lastCommand: string;
@@ -36,15 +34,3 @@ export default class StateManager {
   }
 }
 
-export function sendLastCommandWith(context: ExtensionContext, terminal: Terminal) {
-  const state = new StateManager(context);
-
-  return pipe(
-    state.getLastCommand(),
-    O.fromNullable,
-    O.matchW(
-      () => window.showInformationMessage('The current file is not a test file.'),
-      (command: string) => terminal.sendText(command)
-    )
-  );
-}
