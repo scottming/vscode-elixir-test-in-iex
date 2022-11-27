@@ -31,7 +31,7 @@ This `elixir-test-in-iex.startIExTest` will start the IEx shell for testing manu
 
 ### Run the last command
 
-This is not a command, every time you run the test, the plugin will cache the command text, and when you back to product code(not test file), whether you `runTestFile` or `runTestFileAtCursor`, you will execute the previous command.
+This is not a command, every time you run the test, the plugin will cache the command text, and when you back to product code(not test file), whether you `runTestFile` or `runTestFileAtCursor`, it will automatically execute the previous command.
 
 ## Requirements
 
