@@ -1,46 +1,23 @@
-import { window, workspace, Terminal } from 'vscode';
-import getConfig from '../helpers/config';
-import { isUmbrella, targetWorkingDir } from '../helpers/validations';
+import StateManager from '../helpers/stateManager';
+import { window, workspace, Terminal, ExtensionContext } from 'vscode';
+import showTerminal from '../helpers/config';
+import { populateStartText } from '../helpers/validations';
 
-export default function handler(terminal: Terminal | null = null) {
-  let activateTerminal: Terminal;
-  if (!terminal) {
-    activateTerminal = window.activeTerminal || window.createTerminal();
-  } else {
-    activateTerminal = terminal;
-  }
-
-  const defaultStartText = `MIX_ENV=test iex --no-pry -S mix run -e 'Code.eval_file("~/.test_iex/lib/test_iex.ex");TestIex.start()'`;
+export default function handler(context: ExtensionContext) {
+  const terminal = window.activeTerminal || window.createTerminal();
   const openedFileName = window.activeTextEditor?.document.fileName;
-  if (!openedFileName) {
-    return startIExWith(activateTerminal, defaultStartText);
-  }
-
-  const startText: string = populateStartText(defaultStartText, openedFileName, getCWD);
-  return startIExWith(activateTerminal, startText);
+  const startText: string = populateStartText(openedFileName);
+  const stateManager = new StateManager(context);
+  return startIExWith(startText, terminal, stateManager);
 }
 
-function startIExWith(terminal: Terminal, text: string) {
+/**
+ * Start IEx with the given terminal and start text
+ * @param terminal
+ * @param text
+ */
+export async function startIExWith(text: string, terminal: Terminal, stateManager: StateManager) {
   terminal.sendText(text);
-  getConfig() && terminal.show();
-}
-
-export function populateStartText(
-  defaultStartText: string,
-  openedFileName: string,
-  cwdFun: () => string
-): string {
-  if (isUmbrella(openedFileName)) {
-    const targetCWD = targetWorkingDir(openedFileName);
-    const cwd = cwdFun();
-    return cwd !== targetCWD ? `cd ${targetCWD} && ` + defaultStartText : defaultStartText;
-  } else {
-    return defaultStartText;
-  }
-}
-
-function getCWD(): string {
-  return workspace.workspaceFolders
-    ? workspace.workspaceFolders.map((f) => f.uri.fsPath)[0]
-    : process.cwd();
+  await stateManager.setLastStartCommand(text);
+  showTerminal(terminal);
 }

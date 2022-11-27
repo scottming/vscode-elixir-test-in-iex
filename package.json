@@ -17,8 +17,7 @@
   "activationEvents": [
     "onCommand:elixir-test-in-iex.runTestFile",
     "onCommand:elixir-test-in-iex.runTestAtCursor",
-    "onCommand:elixir-test-in-iex.startIExTest",
-    "onCommand:elixir-test-in-iex.restartIEx"
+    "onCommand:elixir-test-in-iex.startIExTest"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -34,10 +33,6 @@
       {
         "command": "elixir-test-in-iex.startIExTest",
         "title": "TestInIEx: Start Test"
-      },
-      {
-        "command": "elixir-test-in-iex.restartIEx",
-        "title": "TestInIEx: Restart IEx Shell"
       }
     ]
   },
@@ -47,16 +42,16 @@
     "properties": {
       "vscode-elixir-test-in-iex.focusOnTerminalAfterTest": {
         "type": "boolean",
-        "default": true,
+        "default": false,
         "description": "Get focus on terminal panel after test"
       }
     }
   },
   "scripts": {
-    "vscode:prepublish": "yarn run compile",
-    "compile": "tsc -p ./",
+    "vscode:prepublish": "yarn run build",
+    "build": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "yarn run compile && yarn run lint",
+    "pretest": "yarn run build && yarn run lint",
     "lint": "eslint src --ext ts",
     "test_integration": "node ./out/test/runTest.js",
     "test": "jest"
@@ -77,5 +72,8 @@
     "prettier": "2.7.1",
     "ts-jest": "^29.0.3",
     "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "fp-ts": "^2.13.1"
   }
 }

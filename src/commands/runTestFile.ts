@@ -1,36 +1,89 @@
-import { window, ExtensionContext } from "vscode";
-import { isTestFile } from "../helpers/validations";
-import StateManager from "../helpers/lastCommandManager";
-import getConfig from "../helpers/config";
+import { window, ExtensionContext, TextEditor, Terminal } from 'vscode';
+import StateManager from '../helpers/stateManager';
+import { isTestFile, populateStartText } from '../helpers/validations';
+import showTerminal from '../helpers/config';
+import { startIExWith } from './startIExTest';
+
+import * as O from 'fp-ts/Option';
+import { pipe } from 'fp-ts/function';
+
+const FILE_FILTER = /.*\/(test\/.*)$/;
 
 export default async function handler(context: ExtensionContext) {
-  const activeFile = window.activeTextEditor;
-  if (!activeFile) {
+  const openedFilename = window.activeTextEditor?.document.fileName;
+  if (!openedFilename) {
     return;
   }
-  const config = getConfig();
-  const terminal = window.activeTerminal || window.createTerminal();
+  await startIExAndRunTest(context, openedFilename);
+}
 
-  const state = new StateManager(context); // cache the command
-  const openedFilename: string = activeFile.document.fileName;
+export async function startIExAndRunTest(
+  context: ExtensionContext,
+  openedFilename: string,
+  line?: number
+) {
+  const stateManager = new StateManager(context);
+  const startIExText = populateStartText(openedFilename);
+  const needsToChange = startCommandNeedsToChange(startIExText, stateManager);
 
-  if (isTestFile(openedFilename)) {
-    let matched = openedFilename.match(/.*\/(test\/.*)$/);
-    if (matched) {
-      let command = `TestIex.test("${matched[1]}")`;
-      if (matched) {
-        terminal.sendText(command);
-        await state.write({ lastCommand: command });
-      }
-      config.focusOnTerminalAfterTest && terminal.show();
+  let terminal: Terminal | undefined = window.activeTerminal;
+  if (!terminal || needsToChange) {
+    let activeTerminal: Terminal;
+
+    if (!terminal) {
+      activeTerminal = window.createTerminal();
+      await startIExWith(startIExText, activeTerminal, stateManager);
+      await runTest(openedFilename, activeTerminal, stateManager, line);
+      return;
+    }
+
+    if (needsToChange && terminal) {
+      terminal.dispose();
+      activeTerminal = window.createTerminal();
+      await startIExWith(startIExText, activeTerminal, stateManager);
+      await runTest(openedFilename, activeTerminal, stateManager, line);
+      return;
     }
   } else {
-    const { lastCommand } = state.read();
-
-    if (lastCommand) {
-      terminal.sendText(lastCommand);
-    } else {
-      window.showInformationMessage("The current file is not a test file.");
-    }
+    await runTest(openedFilename, terminal, stateManager, line);
   }
+}
+
+function startCommandNeedsToChange(startIExText: string, stateManager: StateManager) {
+  const lastStartIexCommand = stateManager.getLastStartCommand();
+  return lastStartIexCommand !== startIExText;
+}
+
+export async function runTest(
+  openedFilename: string,
+  terminal: Terminal,
+  stateManager: StateManager,
+  line?: number
+) {
+  if (!isTestFile(openedFilename)) {
+    sendLastCommandWith(terminal, stateManager);
+    showTerminal(terminal);
+    return;
+  }
+
+  const matched = openedFilename.match(FILE_FILTER);
+  if (matched) {
+    const command = line
+      ? `TestIex.test("${matched[1]}", ${line})`
+      : `TestIex.test("${matched[1]}")`;
+    terminal.sendText(command);
+    await stateManager.setLastCommand(command);
+    showTerminal(terminal);
+  }
+}
+
+export function sendLastCommandWith(terminal: Terminal, stateManager: StateManager) {
+  return pipe(
+    stateManager.getLastCommand(),
+    O.fromNullable,
+    O.matchW(
+      () => window.showInformationMessage('The current file is not a test file.'),
+      (command: string) => terminal.sendText(command)
+    )
+  );
 }
