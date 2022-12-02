@@ -1,4 +1,4 @@
-import { window, ExtensionContext, TextEditor, Terminal } from 'vscode';
+import { window, ExtensionContext, Terminal } from 'vscode';
 import StateManager from '../helpers/stateManager';
 import { isTestFile, populateStartText } from '../helpers/validations';
 import showTerminal from '../helpers/config';
@@ -25,27 +25,25 @@ export async function startIExAndRunTest(
   const stateManager = new StateManager(context);
   const startIExText = populateStartText(openedFilename);
   const needsToChange = startCommandNeedsToChange(startIExText, stateManager);
+  const newTerminalAndRun = async () => {
+    const newTerminal = window.createTerminal();
+    await startIExWith(startIExText, newTerminal, stateManager);
+    await runTest(openedFilename, newTerminal, stateManager, line);
+    return;
+  };
 
   let terminal: Terminal | undefined = window.activeTerminal;
-  if (!terminal || needsToChange) {
-    let activeTerminal: Terminal;
 
-    if (!terminal) {
-      activeTerminal = window.createTerminal();
-      await startIExWith(startIExText, activeTerminal, stateManager);
-      await runTest(openedFilename, activeTerminal, stateManager, line);
-      return;
-    }
-
-    if (needsToChange && terminal) {
-      terminal.dispose();
-      activeTerminal = window.createTerminal();
-      await startIExWith(startIExText, activeTerminal, stateManager);
-      await runTest(openedFilename, activeTerminal, stateManager, line);
-      return;
-    }
-  } else {
+  if (terminal && !needsToChange) {
     await runTest(openedFilename, terminal, stateManager, line);
+    return;
+  }
+
+  if (terminal && needsToChange) {
+    terminal.dispose();
+    await newTerminalAndRun();
+  } else {
+    await newTerminalAndRun();
   }
 }
 
