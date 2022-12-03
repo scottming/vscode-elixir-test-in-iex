@@ -1,5 +1,4 @@
-import { Terminal } from 'vscode';
-import { ExtensionContext, window } from 'vscode';
+import { ExtensionContext } from 'vscode';
 
 type State = {
   lastCommand: string;
@@ -33,4 +32,3 @@ export default class StateManager {
     await this.context.globalState.update(key, newCommand);
   }
 }
-
