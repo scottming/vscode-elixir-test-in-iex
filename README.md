@@ -97,12 +97,24 @@ I am a vim user and my recommendation is to use [whichkey](https://github.com/VS
               "command": "elixir-test-in-iex.runTestFile"
             },
           ]
+        },
+        {
+          "key": "D",
+          "name": "Detach the activate terminal",
+          "type": "command",
+          "command": "workbench.action.terminal.detachSession"
         }
       ]
     }
 ```
 
 by this keybinding, I only need to press `space t t` or `space t T` to triger the test.
+
+## Q & A
+
+**1. Q: What if run test does not start IEx?**
+
+**A**: The most likely reason is that it has been started before and cached, so the easiest way to fix this is **Detaching** current terminal session, you can set a keybinding for this command: `workbench.action.terminal.detachSession`, after detaching, you can run test again.
 
 **Enjoy!**
 
