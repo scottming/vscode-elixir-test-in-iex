@@ -33,16 +33,6 @@ This `elixir-test-in-iex.startIExTest` will start the IEx shell for testing manu
 
 This is not a command, every time you run the test, the plugin will cache the command text, and when you back to product code(not test file), whether you `runTestFile` or `runTestFileAtCursor`, it will automatically execute the previous command.
 
-## Requirements
-
-Make sure you've already cloned this repo to `~`:
-
-```bash
-$ git clone -b scott https://github.com/scottming/test_iex ~/.test_iex
-```
-
-and open a elixir test file, **TestIniex: Run Test File**.
-
 ## Keybindings
 
 By default, the plugin does not bind you any shortcuts, so you need to open the command panel to execute them, or bind your own shortcuts for these two commands: `elixir-test-in-iex.runTestFile` and `elixir-test-in-iex.runTestAtCursor`.

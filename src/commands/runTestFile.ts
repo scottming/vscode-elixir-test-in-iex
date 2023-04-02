@@ -23,7 +23,7 @@ export async function startIExAndRunTest(
   line?: number
 ) {
   const stateManager = new StateManager(context);
-  const startIExText = populateStartText(openedFilename);
+  const startIExText = populateStartText(openedFilename, context.extensionPath);
   const needsToChange = startCommandNeedsToChange(startIExText, stateManager);
 
   const { terminals, createTerminal } = window;
@@ -71,8 +71,8 @@ export async function runTest(
   const matched = openedFilename.match(FILE_FILTER);
   if (matched) {
     const command = line
-      ? `TestIex.test("${matched[1]}", ${line})`
-      : `TestIex.test("${matched[1]}")`;
+      ? `IExUnit.run("${matched[1]}", line: ${line})`
+      : `IExUnit.run("${matched[1]}")`;
     terminal.sendText(command);
     await stateManager.setLastCommand(command);
     showTerminal(terminal);
