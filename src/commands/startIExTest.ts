@@ -11,7 +11,7 @@ export default function handler(context: ExtensionContext) {
     terminals.find((terminal) => terminal.name === TERMINAL_NAME) || createTerminal(TERMINAL_NAME);
   window.activeTerminal || window.createTerminal();
   const openedFileName = window.activeTextEditor?.document.fileName;
-  const startText: string = populateStartText(openedFileName);
+  const startText: string = populateStartText(openedFileName, context.extensionPath);
   const stateManager = new StateManager(context);
   return startIExWith(startText, terminal, stateManager);
 }

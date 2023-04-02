@@ -1,3 +1,4 @@
+import path = require('path');
 import { workspace } from 'vscode';
 
 const isFolder = (openedFilename: string, folderName: string) => {
@@ -22,25 +23,32 @@ export function targetWorkingDir(openedFilename: string): string | null {
   return targetWorkingDirMathced && targetWorkingDirMathced[1] + '/' + targetWorkingDirMathced[2];
 }
 
-const DEFAULT_START_TEXT =
-  'MIX_ENV=test iex --no-pry -S mix run -e ' +
-  `'Code.eval_file("~/.test_iex/lib/test_iex.ex");TestIex.start()'`;
+function defaultStartText(extensionPath: string) {
+  const iexUnitPath = path.join(extensionPath, 'iex-unit', 'lib', 'iex_unit.ex');
+
+  return (
+    'MIX_ENV=test iex --no-pry -S mix run -e ' +
+    `'Code.eval_file("${iexUnitPath}");IExUnit.start()'`
+  );
+}
 
 export function populateStartText(
   openedFileName: string | undefined,
-  cwdFun: () => string = getCWD,
-  defaultStartText: string = DEFAULT_START_TEXT
+  extensionPath: string,
+  cwdFun: () => string = getCWD
 ): string {
+  const startText = defaultStartText(extensionPath);
+
   if (!openedFileName) {
-    return defaultStartText;
+    return startText;
   }
 
   if (isUmbrella(openedFileName)) {
     const targetCWD = targetWorkingDir(openedFileName);
     const cwd = cwdFun();
-    return cwd !== targetCWD ? `cd ${targetCWD} && ` + defaultStartText : defaultStartText;
+    return cwd !== targetCWD ? `cd ${targetCWD} && ` + startText : startText;
   } else {
-    return defaultStartText;
+    return startText;
   }
 }
 
