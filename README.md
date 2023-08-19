@@ -109,7 +109,3 @@ by this keybinding, I only need to press `space t t` or `space t T` to triger th
 **Enjoy!**
 
 This extension is inspired by [neotest](https://github.com/nvim-neotest/neotest) and [vscode-elixir-test](https://github.com/samuelpordeus/vscode-elixir-test]), big thanks to them.
-
-## Known issues
-
-If you are using Elixir version >= 1.15, then the startup command will fail and you may need to change this [line](https://github.com/scottming/vscode-elixir-test-in-iex/blob/cda8588e4aac15d04394ec714932212ba9c92b18/src/helpers/validations.ts#L30) to remove `--no-pry`, and then package the local version with `vsce package`, I am actively supporting 1.15 in Lexical LS and I will fix this after I finish that.
